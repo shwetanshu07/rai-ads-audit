@@ -1,0 +1,46 @@
+\documentclass[11pt]{article}
+\usepackage[letterpaper,margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{times}
+\usepackage{enumitem}
+\usepackage[hidelinks,breaklinks]{hyperref}
+\def\UrlBreaks{\do\/\do\-\do\.\do\_}
+\Urlmuskip=0mu plus 2mu
+\usepackage{titlesec}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\setlist{nosep,leftmargin=1.5em}
+\titleformat{\section}{\large\bfseries}{}{0pt}{}
+\titlespacing*{\section}{0pt}{12pt}{4pt}
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{center}
+{\Large\bfseries Fairness Audit of Poverty Level Prediction for Costa Rican Households}\\[6pt]
+CS-GY 6973 Responsible AI, Project Proposal\\[4pt]
+Michael Blanchette (mdb9910) and Shwetanshu Raj (sr8250)
+\end{center}
+
+The Inter-American Development Bank (IDB) hosted a Kaggle competition called Costa Rican Household Poverty Level Prediction \textsuperscript{[1]}. They wanted to improve its current method for targeting social aid, the proxy means test (PMT), by using a model that considers a family’s observable household attributes like the material of their walls and ceiling, the assets found in the home and education etc to classify them and predict their level of need. Participants assigned each household to one of four target labels: extreme poverty, moderate poverty, vulnerable or non-vulnerable. Submissions were scored with macro F1 which averages the F1 score of the four classes equally. We will audit a gradient-boosted classifier built by Will Koehrsen for this competition \textsuperscript{[2]}. His pipeline cleans the survey data, aggregates individual rows to the household level, removes highly correlated features, selects features with recursive elimination and trains LightGBM with balanced class weights under ten-fold stratified cross-validation.
+\par
+We will audit how well Koehrsen’s model predicts poverty for different groups of households. Using out-of-fold predictions, we will compare results across the head’s sex and age, urban or rural area, region, household size, disability etc. For each group we want to look at how often poor households are missed (exclusion error), how often better off households are falsely flagged as poor (inclusion error), confusion matrices, macro F1 and calibration to see whether the error rates are balanced across groups. We also want to test whether any gaps come from small group sizes, such as female headed households and use SHAP to see which features drive predictions for each group.
+\par
+We chose this project because poverty targeting or welfare schemes decide who receives aid. A missed poor household has a direct cost as it may lose financial support and the error rates may differ by group. The solution we picked reports only one overall macro F1 score and never looks at results by group. Earlier research has also found that label bias can hurt smaller households \textsuperscript{[3]} and that poverty models can work worse for female-headed households\textsuperscript{[4]}.
+\par
+\textbf{Data}: We use train.csv \textsuperscript{[5]} from the competition. It has one row per person, about 9500 individuals in about 3000 households and 143 columns. The columns cover housing quality, household assets, household size, education, and demographics such as age, sex, region, and urban or rural area etc. Since the test file has no labels we will validate with out-of-fold predictions on the labeled households. 
+
+\section*{Sources}
+\begin{small}
+\begin{enumerate}[label={[\arabic*]},leftmargin=1.8em,itemsep=3pt]
+\item Kaggle competition - \url{https://www.kaggle.com/c/costa-rican-household-poverty-prediction}
+\item W. Koehrsen solution - \url{https://www.kaggle.com/code/willkoehrsen/a-complete-introduction-and-walkthrough}
+\item Predicting social assistance beneficiaries: On the social welfare damage of data biases by Dietrich, Malerba and Gassmann - \url{https://doi.org/10.1017/dap.2023.38}
+\item Equitable AI: Exploring the role of gender in poverty estimation models using geospatial data by Goodman et al. - \url{https://econpapers.repec.org/article/plopone00/0332193.htm}
+\item Data source - \url{https://www.kaggle.com/competitions/costa-rican-household-poverty-prediction/data}
+\item Backup kaggle competition (Home Credit Default Risk) and dataset - \url{https://www.kaggle.com/competitions/home-credit-default-risk/data}
+\end{enumerate}
+\end{small}
+
+\end{document}
